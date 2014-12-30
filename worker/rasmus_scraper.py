@@ -12,13 +12,11 @@ app.config_from_envvar('CELERY_CONFIG_MODULE')
 def get_contributors(package):
     r = requests.get("https://api.github.com/repos/%s/contributors"%package, auth=(os.environ['GH_AUTH'], 'x-oauth-basic'))
 
-    if r.status_code == 404:
-        return False
+    if r.status_code == 200:
+        return [x["login"] for x in r.json()]
     elif r.status_code == 403:
         return int(r.headers["X-RateLimit-Reset"])
-    else:
-        return [x["login"] for x in r.json()]
-
+    
 
 def get_packages():
     r = requests.get('https://packagist.org/packages/list.json')
