@@ -16,7 +16,7 @@ def get_contributors(package):
         return [x["login"] for x in r.json()]
     elif r.status_code == 403:
         return int(r.headers["X-RateLimit-Reset"])
-    
+
 
 def get_packages():
     r = requests.get('https://packagist.org/packages/list.json')
@@ -35,5 +35,5 @@ def persist_packages(start_indx=0):
         if type(contributors) is list:
             print check_call("SYMFONY_ENV=prod php app/console app:persist %s %s"%(package," ".join(contributors)), shell=True)
         elif type(contributors) is int:
-            persist_packages.apply_async((i,), eta=datetime.fromtimestamp(contributors))
+            persist_packages.apply_async((start_indx+i,), eta=datetime.fromtimestamp(contributors))
             break
