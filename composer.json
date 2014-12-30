@@ -18,7 +18,10 @@
         "sensio/distribution-bundle": "~3.0",
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
-        "jms/serializer-bundle": "0.13.0"
+        "jms/serializer-bundle": "0.13.0",
+        "aygon/doctrine-migrations-bundle": "dev-master",
+        "doctrine/migrations": "1.0.x-dev",
+        "doctrine/doctrine-migrations-bundle": "2.1.x-dev"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
