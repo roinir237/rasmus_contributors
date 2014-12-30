@@ -35,7 +35,7 @@ def persist_packages(start_indx=0):
         print package
         contributors = get_contributors(package)
         if type(contributors) is list:
-            print check_call("php app/console app:persist %s %s"%(package," ".join(contributors)), shell=True)
+            print check_call("SYMFONY_ENV=prod php app/console app:persist %s %s"%(package," ".join(contributors)), shell=True)
         elif type(contributors) is int:
             persist_packages.apply_async((i,), eta=datetime.fromtimestamp(contributors))
             break

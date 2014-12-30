@@ -23,3 +23,21 @@ set :shared_files,      ["app/config/parameters.yml"]
 set :shared_children,     [app_path + "/logs", web_path + "/uploads", "vendor"]
 set :use_composer, true
 set :update_vendors, true
+
+set :pip_reqs, "worker/requirements.txt"
+
+namespace :python do
+    desc "install all pip dependencies"
+    task :install, roles: :app do
+        capifony_pretty_print "--> Installing python dependencies using pip"
+        run "#{try_sudo} pip install -r #{current_path}/#{pip_reqs}"
+        capifony_puts_ok
+    end
+
+    desc "restart celery processes"
+    task :restart, roles: :app do
+        capifony_pretty_print "--> Restarting supervisord"
+        run "#{try_sudo} service supervisor restart"
+        capifony_puts_ok
+    end
+end

@@ -11,7 +11,7 @@ CELERY_TIMEZONE = 'Europe/London'
 CELERY_ENABLE_UTC = True
 
 CELERYBEAT_SCHEDULE = {
-    'tweet-every-3-day': {
+    'scrape-every-3-day': {
         'task': 'worker.rasmus_scraper.persist_packages',
         'schedule': timedelta(days=3)
     }
