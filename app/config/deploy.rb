@@ -1,7 +1,11 @@
 set :application, "rasmus contributors"
 set :domain,      "ec2-50-112-141-57.us-west-2.compute.amazonaws.com"
+set :user,        "ubuntu"
 set :deploy_to,   "/var/www/contributors"
 set :app_path,    "app"
+
+ssh_options[:forward_agent] = true
+ssh_options[:keys] = "~/.ssh/keys/aws-us-west.pem"
 
 set :scm,           :git
 set :repository,    "git@github.com:roinir237/rasmus_contributors.git"
