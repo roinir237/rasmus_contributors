@@ -28,9 +28,13 @@ def get_packages():
 
 def packagist_to_gh(packegist_name):
     r = requests.get('https://packagist.org/p/%s.json'%packegist_name)
-    homepage = r.json()["packages"][packegist_name].itervalues().next()["source"]["url"]
-    gh_match = re.search('(?<=github.com/)[^.]+',homepage)
+    try:
+        homepage = r.json()["packages"][packegist_name].itervalues().next()["source"]["url"]
+    except KeyError:
+        return None
+    gh_match = re.search('(?<=github.com/).+(?=.git)',homepage)
     return gh_match.group(0) if gh_match is not None else None
+
 
 @app.task
 def persist_packages(start_indx=0):
