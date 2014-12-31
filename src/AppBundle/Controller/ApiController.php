@@ -34,6 +34,18 @@ class ApiController extends Controller
     }
 
     /**
+     * @Route("/api/potentials/{org}/{project}", name="get_potentials")
+     */
+    public function getPotentials($org, $project)
+    {
+        $package = "{$org}/{$project}";
+        $grapher = $this->get("grapher");
+        $res = $grapher->potentialContributors($package);
+        if($res) return new JSONResponse(array('potentials'=>$res));
+        else return new JsonResponse(array("message"=> "No potential contributors found"), 404);
+    }
+
+    /**
      * @Route("/api/{user}/packages", name="get_user_packages")
      */
     public function getUserPackagesAction($user)

@@ -1,5 +1,5 @@
 .idea/*
-*.pyc
+worker/*.pyc
 
 # Cache and logs (Symfony2)
 /app/cache/*

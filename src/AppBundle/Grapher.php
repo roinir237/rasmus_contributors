@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: roinir
- * Date: 26/12/14
- * Time: 14:32
- */
 
 namespace AppBundle;
 use Doctrine\ORM\EntityManager;
@@ -22,7 +16,7 @@ class Grapher {
     {
         // check the users are different
         if($user1 == $user2) return [$user1];
-        // check both users have repos on github
+        // check both users have repos in the db
         $srcPackages = $this->userPackages($user1);
         $targetPackages = $this->userPackages($user2);
         if(!$srcPackages || !$targetPackages) return null;
@@ -47,6 +41,34 @@ class Grapher {
         return null;
     }
 
+    public function potentialContributors($package)
+    {
+        $res = [];
+        foreach($this->contributorsList($package) as $contributor) {
+            foreach ($this->neighbours($contributor) as $dstNode => $packages) {
+                if (!is_array($packages)) $packages = [$packages];
+                if(!in_array($package, $packages))
+                {
+                    $res = array_merge_recursive($res, [$dstNode => ['workedOn' => array_fill_keys($packages, ['with' => $contributor])]]);
+                    $res[$dstNode]["connections"] = array_key_exists("connections", $res[$dstNode]) ? $res[$dstNode]["connections"] + 1 : 1;
+                }
+            }
+        }
+
+        $res = array_map(function($key,$item){
+            return array_merge(['name'=>$key], $item);
+        }, array_keys($res), $res);
+
+        usort($res, function ($a, $b){
+            if ($a["connections"] == $b["connections"]) {
+                return 0;
+            }
+            return ($a["connections"] < $b["connections"]) ? 1 : -1;
+        });
+
+        return $res;
+    }
+
     private function neighbours($user, $excludedPackages = [])
     {
         $srcPackages = array_diff($this->userPackages($user), $excludedPackages);
@@ -54,7 +76,7 @@ class Grapher {
         foreach($srcPackages as $package)
         {
             $packageContributors = array_fill_keys(array_diff($this->contributorsList($package),[$user]), $package);
-            $neighbours = array_merge($neighbours, $packageContributors);
+            $neighbours = array_merge_recursive($neighbours, $packageContributors);
         }
 
         return $neighbours;
