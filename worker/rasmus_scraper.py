@@ -3,6 +3,7 @@ import requests
 import os
 from subprocess import check_call
 from datetime import datetime
+import re
 
 os.environ.setdefault('CELERY_CONFIG_MODULE', 'worker.celeryconfig')
 
@@ -10,12 +11,14 @@ app = Celery("rasmus_scraper")
 app.config_from_envvar('CELERY_CONFIG_MODULE')
 
 def get_contributors(package):
-    r = requests.get("https://api.github.com/repos/%s/contributors"%package, auth=(os.environ['GH_AUTH'], 'x-oauth-basic'))
+    package = packagist_to_gh(package)
+    if package is not None:
+        r = requests.get("https://api.github.com/repos/%s/contributors"%package, auth=(os.environ['GH_AUTH'], 'x-oauth-basic'))
 
-    if r.status_code == 200:
-        return [x["login"] for x in r.json()]
-    elif r.status_code == 403:
-        return int(r.headers["X-RateLimit-Reset"])
+        if r.status_code == 200:
+            return [x["login"] for x in r.json()]
+        elif r.status_code == 403:
+            return int(r.headers["X-RateLimit-Reset"])
 
 
 def get_packages():
@@ -23,6 +26,11 @@ def get_packages():
     data = r.json()
     return data["packageNames"]
 
+def packagist_to_gh(packegist_name):
+    r = requests.get('https://packagist.org/p/%s.json'%packegist_name)
+    homepage = r.json()["packages"][packegist_name].itervalues().next()["source"]["url"]
+    gh_match = re.search('(?<=github.com/)[^.]+',homepage)
+    return gh_match.group(0) if gh_match is not None else None
 
 @app.task
 def persist_packages(start_indx=0):
