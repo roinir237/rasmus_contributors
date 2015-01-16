@@ -50,7 +50,7 @@ class Grapher {
                 if(!in_array($package, $packages))
                 {
                     $res = array_merge_recursive($res, [$dstNode => ['workedOn' => array_fill_keys($packages, ['with' => $contributor])]]);
-                    $res[$dstNode]["connections"] = array_key_exists("connections", $res[$dstNode]) ? $res[$dstNode]["connections"] + 1 : 1;
+                    $res[$dstNode]["connections"] = array_key_exists("connections", $res[$dstNode]) ? $res[$dstNode]["connections"] + count($packages) : count($packages);
                 }
             }
         }
